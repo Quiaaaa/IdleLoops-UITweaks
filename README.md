@@ -1,6 +1,6 @@
 # IdleLoops-UITweaks
 
-The IdleLoops UITweaks is a userscript addon to modify the UI of [IdleLoops](http://stopsign.github.io/idleLoops/) and the [Idle Loops Preictor](https://github.com/MakroCZ/IdleLoops-Predictor). The tweaks to the UI includes an addition to track the gains/losses of soulstones and talents since the tracker is started, an addition to the predictor to state the amount of actions per minute you get for the last active action in the list, and a way to track the amount of actions needed to reach a target point in explorations.
+The IdleLoops UITweaks is a userscript addon to modify the UI of [IdleLoops](http://stopsign.github.io/idleLoops/) and the [Idle Loops Predictor](https://github.com/MakroCZ/IdleLoops-Predictor). The tweaks to the UI includes an addition to track the gains/losses of soulstones and talents since the tracker is started, an addition to the predictor to state the amount of actions per minute you get for the last active action in the list, and a way to track the amount of actions needed to reach a target point in explorations.
 
 ## Installation
 
