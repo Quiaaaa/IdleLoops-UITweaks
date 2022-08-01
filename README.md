@@ -6,9 +6,9 @@ The IdleLoops UITweaks is a userscript addon to modify the UI of [IdleLoops](htt
 
 You will need a userscript manager like [Tampermonkey for Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Greasemonkey for Firefox](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) installed on your browser before using this script. The script is installed via one of these tools.
 
-To install the script, click the `idleloops-predictor.user.js` in GitHub and then click the **`Raw`** button. Your userscript manager should automatically give you the option to install the script. Alternatively, you can just follow the link below:
+To install the script, click the `IdleLoopsUITweaks.user.js` in GitHub and then click the **`Raw`** button. Your userscript manager should automatically give you the option to install the script. Alternatively, you can just follow the link below:
 
-**[»» Install IdleLoops UI Tweaks ««](https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.js)**
+**[»» Install IdleLoops UI Tweaks ««](https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js)**
 
 ## UI changes
 
