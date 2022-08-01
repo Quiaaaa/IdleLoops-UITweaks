@@ -3,7 +3,8 @@
 // @namespace    http://tampermonkey.net/
 // @version      0.4
 // @description  Add some QoL UI elements for observing progress, and planning
-// @author       You
+// @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.js
+// @author       Trimpscord
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=github.io
 // @grant        none
