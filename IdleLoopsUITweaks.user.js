@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/Quiaaaa/
 // @version      0.4
 // @description  Add some QoL UI elements for observing progress, and planning
-// @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.js
+// @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
 // @match        https://lloyd-delacroix.github.io/omsi-loops/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=github.io
