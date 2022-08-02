@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4
+// @version      0.4.5
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -211,30 +211,59 @@ function createTextElement(text) {
 }
 
 function hideStatGains() {
-	document.querySelector("#statContainer").childNodes.forEach(stat => {
-		stat.children[1].style = "display: none";
-	});
+    document.querySelector("#statContainer").childNodes.forEach(stat => {
+	stat.children[1].style = "display: none";
+    });
 }
 
 function showStatGains() {
-	document.querySelector("#statContainer").childNodes.forEach(stat => {
-		stat.children[1].style = "width: 90%";
-	});
+    document.querySelector("#statContainer").childNodes.forEach(stat => {
+	stat.children[1].style = "width: 90%";
+    });
+}
+
+// Code to fix the placement of tooltips on the screen so they don't go over
+
+function fitTooltipToScreen(tooltip) {
+    // Adds style to make box based on right side of parent if it would go offscreen
+    let rect = tooltip.getBoundingClientRect();
+    if((rect.x + rect.width) > window.innerWidth) {
+	tooltip.style = "right: 0%";
+    }
+}
+
+function undoTooltipStyle(tooltip) {
+    //Undoes the styling in case screen size is later changed
+    tooltip.style = "";
 }
 
 
+function fitTooltipSetup() {
+    for (let i = 0; i < towns.length; i++) {
+	townDiv = document.querySelector(`#actionOptionsTown${i}`);
+	townDiv.childNodes.forEach(action => {
+		action.querySelector(".showthat").addEventListener("mouseover",function() {
+			fitTooltipToScreen(action.querySelector(".showthis"));
+		});
+		action.querySelector(".showthat").addEventListener("mouseout",function() {
+			undoTooltipStyle(action.querySelector(".showthis"));
+		});
+	});
+    }
+}
 
 var statsAtStart;
 setTimeout(() => {
     // Growth Tracking and Remaining Actions
     startTracking();
     addUIElements();
+    fitTooltipSetup();
 
-	document.querySelector("#radarStats").addEventListener("input", hideStatGains);
-	document.querySelector("#regularStats").addEventListener("input", showStatGains);
+    document.querySelector("#radarStats").addEventListener("input", hideStatGains);
+    document.querySelector("#regularStats").addEventListener("input", showStatGains);
     // Action Efficiency
-	document.querySelector('#actionList').children[1].style += 'left:34px';
-	let observer = new MutationObserver(calcEff);
-	observer.observe(Koviko.totalDisplay.parentNode.childNodes[5], {attributes: true, childList: true, characterData: true});
-	calcEff();
+    document.querySelector('#actionList').children[1].style += 'left:34px';
+    let observer = new MutationObserver(calcEff);
+    observer.observe(Koviko.totalDisplay.parentNode.childNodes[5], {attributes: true, childList: true, characterData: true});
+    calcEff();
 }, 5000)
