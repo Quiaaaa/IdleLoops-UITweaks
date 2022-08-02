@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.5
+// @version      0.4.6
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -152,6 +152,11 @@ function calcEff() {
         actions.next.forEach((listedAction,i) => {
             if (!listedAction.disabled && listedAction.name === actionName) actionCount += listedAction.loops;
         })
+        // predictor supports calculating # of repeats for last action with repeats enabled, and the element with the predicted count gets a unique "finLoops" class if this is enabled
+        let finLoops = document.querySelector('li.finLoops');
+        if (finLoops) {
+            actionCount += finLoops.innerHTML * 1.0 - actions.next[lastAction].loops;
+        }
         if (Koviko.totalDisplay.parentNode.children.length == 4) {
             createEffText(actionCount, seconds, imageSrc);
         } else {
