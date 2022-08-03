@@ -25,6 +25,10 @@ The next change to the UI is an addition to the predictor for the game. It adds 
 
 The third UI addition is a way to track the amount of actions needed to reach the target set in the input box for the given exploration, updating as actions for it are completed.
 
+![Haggle Cap](https://i.imgur.com/KP73V8v.png)
+
+The UI tweaks also adds a cap button for the number of haggles you wish to do to set it to the base max of 15 wanted.
+
 ## Limitations
 
 ### Predictor Requirement
