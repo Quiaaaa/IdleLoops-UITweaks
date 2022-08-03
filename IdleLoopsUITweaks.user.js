@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.6
+// @version      0.4.7
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -257,6 +257,34 @@ function fitTooltipSetup() {
     }
 }
 
+// Code to add a cap button to the haggle action to set it to 15
+
+function haggleMax(index) {
+	// Uses code from the cap action function from the game, but designed for haggle amount
+	let action = actions.next[index];
+	let amount = getNumOnList(action.name) + (action.disabled ? action.loops : 0);
+	let newAmount = 15 - amount;
+	actions.nextLast = copyObject(actions.next);
+    	if (action.loops + newAmount < 0) action.loops = 0;
+    	else action.loops += newAmount;
+    	view.updateNextActions();
+    	view.updateLockedHidden();
+}
+
+function createHaggleMax(){
+	// Creates a cap button for each haggle action
+	for (let i = 0; i < actions.next.length; i++) {
+		const action = actions.next[i];
+		if (action.name === "Haggle") {
+			let haggleCap = document.createElement("i");
+			haggleCap.id = `capButton${i}`;
+			haggleCap.classList.add("actionIcon","far","fa-circle");
+			haggleCap.onclick = function() { haggleMax(i) };
+			document.querySelector(`#nextActionContainer${i}`).children[1].insertAdjacentElement("afterbegin",haggleCap);
+		}
+	}
+}
+
 var statsAtStart;
 setTimeout(() => {
     // Growth Tracking and Remaining Actions
@@ -270,5 +298,8 @@ setTimeout(() => {
     document.querySelector('#actionList').children[1].style += 'left:34px';
     let observer = new MutationObserver(calcEff);
     observer.observe(Koviko.totalDisplay.parentNode.childNodes[5], {attributes: true, childList: true, characterData: true});
+    let observer2 = new MutationObserver(createHaggleMax);
+    observer2.observe(Koviko.totalDisplay.parentNode.childNodes[5], {attributes: true, childList: true, characterData: true});
     calcEff();
+    createHaggleMax();
 }, 5000)
