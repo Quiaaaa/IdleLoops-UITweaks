@@ -302,5 +302,4 @@ setTimeout(() => {
     observer2.observe(Koviko.totalDisplay.parentNode.childNodes[5], {attributes: true, childList: true, characterData: true});
     calcEff();
     createHaggleMax();
-    calcEff();
 }, 5000)
