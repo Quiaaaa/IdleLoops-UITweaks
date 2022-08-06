@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.7
+// @version      0.4.8
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -24,6 +24,8 @@ function resetTracking() {
 }
 
 function addUIElements() {
+	let shortNames = {Dexterity: "Dex", Strength: "Str", Constitution: "Con", Speed: "Spd", Perception: "Per", Charisma: "Cha", Intelligence: "Int", Luck: "Luck", Soul: "Soul"};
+	
 	//Talent and SS increases
 	statList.forEach((stat) => ["Talent", "ss"].forEach((suffix) => {
 		let statEl =  document.querySelector(`#stat${stat}${suffix}`)
@@ -34,22 +36,14 @@ function addUIElements() {
 	}))
 
 	document.querySelector('#statContainer').childNodes.forEach((stat) => {
-		let elements = document.createDocumentFragment();
-		let levelDiv = document.createElement('div');
-		levelDiv.style = 'width: 90%; margin-top: -4px;margin-bottom: -4px;';
-		for (let i = 0; i < 3; i++) {
-			levelDiv.appendChild(stat.children[0].children[1]);
-		}
-		levelDiv.children[0].style = 'color: #737373; width: 30%; float: right; text-align: right';
-		levelDiv.children[1].style = 'width: 30%; text-align: center';
-		levelDiv.children[2].style = 'width: 20%; float: left';
-		elements.appendChild(stat.children[0]);
-		elements.appendChild(levelDiv);
-
-		for (let i = 0; i < 3; i++) {
-			elements.appendChild(stat.children[0]);
-		}
-		stat.appendChild(elements);
+		let statElem = stat.children[0];
+		let nameElem = statElem.children[0];
+		nameElem.innerText = shortNames[nameElem.innerText];
+		
+		statElem.children[0].style = 'width: 10%; font-weight: bold' // Name
+		statElem.children[1].style = 'width: 30%; color: #737373;  float: right; text-align: right'; // SS
+		statElem.children[2].style = 'width: 30%; text-align: right'; // Talent
+		statElem.children[3].style = 'width: 15%; text-align: right; font-weight: bold'; // Level
 	});
 
 	//Progress requirements for Explore Actions
@@ -130,6 +124,10 @@ function updateTarget() {
 	towns.forEach((town) => town.progressVars.forEach((action) => {
 		updateRepeats(town, action);
 	}))
+}
+
+function getActionByVarName(varName) {
+	return Action[varName] === undefined ? Action[Object.keys(Action).find(key => Action[key].varName === varName)] : Action[varName];
 }
 
 // DemonKitty's Action Efficiency
