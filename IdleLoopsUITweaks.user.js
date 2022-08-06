@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.8
+// @version      0.4.8.1
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -74,8 +74,11 @@ function addUIElements() {
 	//realign Stats box to make it easier to fit them in, align action info with progress bar
 	var style = document.createElement('style');
 	style.innerHTML = `
+	.statLabelContainer {
+		margin-top: 5px;
+	}
 	.statNum {
-		margin: 5px 3px 0;
+		margin: 0px 3px 0;
 		text-align: left;
 		font-size: 13px
 	}
@@ -91,7 +94,6 @@ function addUIElements() {
 		right: 0;
 		bottom: 100%;
 	}
-	
 	.button, .loadoutbutton {
 		margin-top:3px;
 	}
