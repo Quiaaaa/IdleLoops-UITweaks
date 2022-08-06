@@ -40,10 +40,10 @@ function addUIElements() {
 		let nameElem = statElem.children[0];
 		nameElem.innerText = shortNames[nameElem.innerText];
 		
-		statElem.children[0].style = 'width: 10%; font-weight: bold' // Name
-		statElem.children[1].style = 'width: 30%; color: #737373;  float: right; text-align: right'; // SS
-		statElem.children[2].style = 'width: 30%; text-align: right'; // Talent
-		statElem.children[3].style = 'width: 15%; text-align: right; font-weight: bold'; // Level
+		statElem.children[0].style = 'width: 10%; font-weight: bold; margin-left: 18px' // Name
+		statElem.children[1].style = 'width: 30%; color: #737373; '; // SS
+		statElem.children[2].style = 'width: 30%;' // Talent
+		statElem.children[3].style = 'width: 15%; font-weight: bold'; // Level
 	});
 
 	//Progress requirements for Explore Actions
@@ -75,12 +75,12 @@ function addUIElements() {
 	var style = document.createElement('style');
 	style.innerHTML = `
 	.statNum {
-		width: 54px;
 		margin: 5px 3px 0;
 		text-align: left;
 		font-size: 13px
 	}
 	.statNum div {
+		text-align: left;
 		font-size: 13px
 	}
 	.thinProgressBarUpper {
@@ -90,6 +90,10 @@ function addUIElements() {
 		position: absolute;
 		right: 0;
 		bottom: 100%;
+	}
+	
+	.button, .loadoutbutton {
+		margin-top:3px;
 	}
 	`;
 	document.head.appendChild(style);
