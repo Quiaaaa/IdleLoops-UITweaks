@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.8.3
+// @version      0.4.9
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -21,10 +21,12 @@ function resetTracking() {
 	statList.forEach((stat) => ["Talent", "ss"].forEach((suffix) => {
 		document.querySelector(`#stat${stat}${suffix}Inc`).innerHTML = ''
 	}))
+	resetTotalSS()
+	resetTotalTalent()
 }
 
 function addUIElements() {
-	let shortNames = {Dexterity: "Dex", Strength: "Str", Constitution: "Con", Speed: "Spd", Perception: "Per", Charisma: "Cha", Intelligence: "Int", Luck: "Luck", Soul: "Soul"};
+	let shortNames = {Dexterity: "Dex", Strength: "Str", Constitution: "Con", Speed: "Spd", Perception: "Per", Charisma: "Cha", Intelligence: "Int", Luck: "Luck", Soul: "Soul", Total: "Total"};
 	
 	//Talent and SS increases
 	statList.forEach((stat) => ["Talent", "ss"].forEach((suffix) => {
@@ -35,6 +37,8 @@ function addUIElements() {
 		observer.observe(statEl, {attributes: true, childList: true, characterData: true});
 	}))
 
+	createTotalStat();
+
 	document.querySelector('#statContainer').childNodes.forEach((stat) => {
 		let statElem = stat.children[0];
 		let nameElem = statElem.children[0];
@@ -44,7 +48,7 @@ function addUIElements() {
 		statElem.children[1].style = 'width: 30%; color: #737373; '; // SS
 		statElem.children[2].style = 'width: 30%;' // Talent
 		statElem.children[3].style = 'width: 15%; font-weight: bold'; // Level
-	});
+	}); 
 
 	//Progress requirements for Explore Actions
 	towns.forEach((town) => town.progressVars.forEach((action) => {
@@ -98,12 +102,96 @@ function addUIElements() {
 	document.head.appendChild(style);
 }
 
+function createTotaltracker(parent, trackID) {
+
+	let totalTracker = document.createElement('div');
+	totalTracker.classList.add('statNum');
+	parent.appendChild(totalTracker);
+	["", "Inc"].forEach((type) => {
+		let tracker = document.createElement('div');
+		tracker.classList.add('medium');
+		tracker.id = `${trackID}${type}`;
+		tracker.innerHTML = '';
+		totalTracker.appendChild(tracker);
+	});
+
+}
+
+function createTotalStat() {
+	let totalStat = document.createElement('div');
+	totalStat.classList.add('statRegularContainer');
+
+	let totalContainer = document.createElement('div');
+	totalContainer.classList.add('statLabelContainer');
+	totalContainer.style = 'display: inline-block;';
+	totalStat.appendChild(totalContainer);
+
+	let totalName = document.createElement('div');
+	totalName.classList.add('medium', 'bold');
+	totalName.innerHTML = 'Total';
+	totalContainer.appendChild(totalName);
+
+	createTotaltracker(totalContainer, 'statTotalss');
+	createTotaltracker(totalContainer, 'statTotalTalent');
+
+	let totalLevel = document.createElement('div');
+	totalLevel.classList.add('statNum','medium', 'bold');
+	totalLevel.innerHTML = '';
+	totalContainer.appendChild(totalLevel);
+
+	document.querySelector('#statContainer').appendChild(totalStat);
+	resetTotalSS();
+	resetTotalTalent();
+}
+
+function resetTotalSS() {
+	let count = 0;
+	statList.forEach(stat => {
+		count += stats[stat].soulstone;
+		currSSList[stat] = 0;
+	});
+	startSSTotal = count;
+	currSSTotal = count;
+	document.querySelector('#statTotalss').innerHTML = count;
+	document.querySelector('#statTotalssInc').innerHTML = '';
+}
+
+function resetTotalTalent() {
+	let count = 0;
+	statList.forEach(stat => {
+		count += getLevelFromTalent(stats[stat].talent);
+		currTalentList[stat] = 0;
+	});
+	startTalentTotal = count;
+	currTalentTotal = count;
+	document.querySelector('#statTotalTalent').innerHTML = count;
+	document.querySelector('#statTotalTalentInc').innerHTML = '';
+
+}
+
 function updateIncreases(stat, suffix) {
 	//track changes in Talent and SS
 	let change = suffix === "Talent" ? getTalent(stat) - getLevelFromTalent(statsAtStart[stat].talent)
 				: stats[stat].soulstone - statsAtStart[stat].soulstone;
 	let displayStr = change > 0 ? `(+${change})` : change < 0 ? `(${change})` : ``;
 	document.querySelector(`#stat${stat}${suffix}Inc`).innerText = displayStr;
+	updateTotalSSTalent(stat, suffix, change);
+}
+
+function updateTotalSSTalent(stat, suffix, change) {
+	let totalChange, displayStr;
+	if (suffix === "Talent") {
+		currTalentTotal += change - currTalentList[stat];
+		currTalentList[stat] = change
+		totalChange = currTalentTotal - startTalentTotal;
+	} else {
+		currSSTotal += change - currSSList[stat];
+		currSSList[stat] = change
+		totalChange = currSSTotal - startSSTotal;
+	}
+	displayStr = totalChange > 0 ? `(+${totalChange})` : totalChange < 0 ? `(${totalChange})` : ``;
+	document.querySelector(`#statTotal${suffix}`).innerHTML = currTalentTotal;
+	document.querySelector(`#statTotal${suffix}Inc`).innerHTML = displayStr;
 }
 
 function updateRepeats(town, action) {
@@ -166,6 +254,7 @@ function updateRepeats(town, action) {
 		document.querySelector(`#reqActions${action}`).style.display = "none";
 	}
 }
+
 
 function updateTarget() {
 	towns.forEach((town) => town.progressVars.forEach((action) => {
@@ -331,6 +420,13 @@ function createHaggleMax(){
 }
 
 var statsAtStart;
+var startSSTotal;
+var startTalentTotal;
+var currSSTotal;
+var currSSList = {Dexterity: 0, Strength: 0, Constitution: 0, Speed: 0, Perception: 0, Charisma: 0, Intelligence: 0, Luck: 0, Soul: 0};
+var currTalentTotal;
+var currTalentList = {Dexterity: 0, Strength: 0, Constitution: 0, Speed: 0, Perception: 0, Charisma: 0, Intelligence: 0, Luck: 0, Soul: 0};
+
 setTimeout(() => {
     // Growth Tracking and Remaining Actions
     startTracking();
