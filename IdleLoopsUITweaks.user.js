@@ -195,13 +195,57 @@ function updateTotalSSTalent(stat, suffix, change) {
 }
 
 function updateRepeats(town, action) {
-	//show required repeats to gain 1 level and all remaining levels
+	//show required repeats to gain 1 level, and a user set goal level, default 100
 	let level = town.getLevel(action);
 	if (level < 100) {
+		let progressMod = 1
+		{
+			//all modifications to progressMod should be multiplicative, things can have different base rates, AND be affected by glasses.
+			//TODO glasses and pickaxe need a force update on `actions` change, as is they only update on a change to the goal.
+			//handle glasses actions
+			let glasses = actions.next.find(a => a.name === "Buy Glasses" && a.disabled === false);
+			let actionObj = getActionByVarName(action);
+			if (glasses && actionObj.affectedBy?.includes("Buy Glasses")) {
+				progressMod *= 2;
+				if (actionObj.name == "Wander") progressMod *= 2; // wander gets x4 on glasses
+			}
+			
+			//handle Pickaxe/mountain (some things affected by pickaxe are not faster with it, so just handle mountain)
+			if (action == "Mountain") {
+				let pickaxe = actions.next.find(a => a.name === "Buy Pickaxe" && a.disabled === false);
+				progressMod *= pickaxe ? 2 : 1;
+			}
+			
+			//handle constant speed actions
+			let speedModActions = {Wander: 2, Met: 2, Secrets: 5, ThrowParty: 32, Canvassed: .5, Excursion: .5};
+			progressMod *= speedModActions[action] ? speedModActions[action] : 1;
+			
+			//TODO handle special variable actions
+			/* 
+			Hermit 
+				towns[1].finishProgress(this.varName, 50 * (1 + towns[1].getLevel("Shortcut") / 100));
+			Apprentice 
+				towns[2].finishProgress(this.varName, 30 * getCraftGuildRank().bonus);
+			Mason 
+				towns[2].finishProgress(this.varName, 20 * getCraftGuildRank().bonus);
+			Architect 
+				towns[2].finishProgress(this.varName, 10 * getCraftGuildRank().bonus);
+			
+			Stuff for way later
+			Meander
+			ExploreJungle
+			ExplorersGuild
+			PickPockets
+			...more
+			*/		
+		}
+		
 		let actionElement = document.querySelector(`#reqActions${action}`);
 		let goal = Number(actionElement.querySelector(".goal").value);
-		let toNext = Math.round((level+1)*(1 - town.getPrcToNext(action)/100))
-		let toGoal = ((goal*(goal+1)/2) - level*(level+1)/2) - (level + 1 - toNext);
+		
+		// being lazy with progressMod, haven't double checked to see if it needs to be elsewhere in the formula
+		let toNext = Math.ceil(Math.round((level+1)*(1 - town.getPrcToNext(action)/100))/progressMod)
+		let toGoal = Math.ceil((((goal*(goal+1)/2) - level*(level+1)/2) - (level + 1 - toNext))/progressMod); 
 
 		actionElement.querySelector(`.nextReq`).innerText = toNext;
 		actionElement.querySelector(`.goalReq`).innerText = toGoal;
@@ -210,6 +254,7 @@ function updateRepeats(town, action) {
 		document.querySelector(`#reqActions${action}`).style.display = "none";
 	}
 }
+
 
 function updateTarget() {
 	towns.forEach((town) => town.progressVars.forEach((action) => {
