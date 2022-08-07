@@ -179,18 +179,20 @@ function updateIncreases(stat, suffix) {
 }
 
 function updateTotalSSTalent(stat, suffix, change) {
-	let totalChange, displayStr;
+	let totalChange, newTotal, displayStr;
 	if (suffix === "Talent") {
 		currTalentTotal += change - currTalentList[stat];
 		currTalentList[stat] = change
 		totalChange = currTalentTotal - startTalentTotal;
+		newTotal = currTalentTotal;
 	} else {
 		currSSTotal += change - currSSList[stat];
 		currSSList[stat] = change
 		totalChange = currSSTotal - startSSTotal;
+		newTotal = currSSTotal;
 	}
 	displayStr = totalChange > 0 ? `(+${totalChange})` : totalChange < 0 ? `(${totalChange})` : ``;
-	document.querySelector(`#statTotal${suffix}`).innerHTML = currTalentTotal;
+	document.querySelector(`#statTotal${suffix}`).innerHTML = newTotal;
 	document.querySelector(`#statTotal${suffix}Inc`).innerHTML = displayStr;
 }
 
