@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.8.3
+// @version      0.4.9
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -21,10 +21,12 @@ function resetTracking() {
 	statList.forEach((stat) => ["Talent", "ss"].forEach((suffix) => {
 		document.querySelector(`#stat${stat}${suffix}Inc`).innerHTML = ''
 	}))
+	resetTotalSS()
+	resetTotalTalent()
 }
 
 function addUIElements() {
-	let shortNames = {Dexterity: "Dex", Strength: "Str", Constitution: "Con", Speed: "Spd", Perception: "Per", Charisma: "Cha", Intelligence: "Int", Luck: "Luck", Soul: "Soul"};
+	let shortNames = {Dexterity: "Dex", Strength: "Str", Constitution: "Con", Speed: "Spd", Perception: "Per", Charisma: "Cha", Intelligence: "Int", Luck: "Luck", Soul: "Soul", Total: "Total"};
 	
 	//Talent and SS increases
 	statList.forEach((stat) => ["Talent", "ss"].forEach((suffix) => {
@@ -35,6 +37,8 @@ function addUIElements() {
 		observer.observe(statEl, {attributes: true, childList: true, characterData: true});
 	}))
 
+	createTotalStat();
+
 	document.querySelector('#statContainer').childNodes.forEach((stat) => {
 		let statElem = stat.children[0];
 		let nameElem = statElem.children[0];
@@ -44,7 +48,7 @@ function addUIElements() {
 		statElem.children[1].style = 'width: 30%; color: #737373; '; // SS
 		statElem.children[2].style = 'width: 30%;' // Talent
 		statElem.children[3].style = 'width: 15%; font-weight: bold'; // Level
-	});
+	}); 
 
 	//Progress requirements for Explore Actions
 	towns.forEach((town) => town.progressVars.forEach((action) => {
@@ -98,66 +102,106 @@ function addUIElements() {
 	document.head.appendChild(style);
 }
 
+function createTotaltracker(parent, trackID) {
+
+	let totalTracker = document.createElement('div');
+	totalTracker.classList.add('statNum');
+	parent.appendChild(totalTracker);
+	["", "Inc"].forEach((type) => {
+		let tracker = document.createElement('div');
+		tracker.classList.add('medium');
+		tracker.id = `${trackID}${type}`;
+		tracker.innerHTML = '';
+		totalTracker.appendChild(tracker);
+	});
+
+}
+
+function createTotalStat() {
+	let totalStat = document.createElement('div');
+	totalStat.classList.add('statRegularContainer');
+
+	let totalContainer = document.createElement('div');
+	totalContainer.classList.add('statLabelContainer');
+	totalContainer.style = 'display: inline-block;';
+	totalStat.appendChild(totalContainer);
+
+	let totalName = document.createElement('div');
+	totalName.classList.add('medium', 'bold');
+	totalName.innerHTML = 'Total';
+	totalContainer.appendChild(totalName);
+
+	createTotaltracker(totalContainer, 'statTotalss');
+	createTotaltracker(totalContainer, 'statTotalTalent');
+
+	let totalLevel = document.createElement('div');
+	totalLevel.classList.add('statNum','medium', 'bold');
+	totalLevel.innerHTML = '';
+	totalContainer.appendChild(totalLevel);
+
+	document.querySelector('#statContainer').appendChild(totalStat);
+	resetTotalSS();
+	resetTotalTalent();
+}
+
+function resetTotalSS() {
+	let count = 0;
+	statList.forEach(stat => {
+		count += stats[stat].soulstone;
+		currSSList[stat] = 0;
+	});
+	startSSTotal = count;
+	currSSTotal = count;
+	document.querySelector('#statTotalss').innerHTML = count;
+	document.querySelector('#statTotalssInc').innerHTML = '';
+}
+
+function resetTotalTalent() {
+	let count = 0;
+	statList.forEach(stat => {
+		count += getLevelFromTalent(stats[stat].talent);
+		currTalentList[stat] = 0;
+	});
+	startTalentTotal = count;
+	currTalentTotal = count;
+	document.querySelector('#statTotalTalent').innerHTML = count;
+	document.querySelector('#statTotalTalentInc').innerHTML = '';
+
+}
+
 function updateIncreases(stat, suffix) {
 	//track changes in Talent and SS
 	let change = suffix === "Talent" ? getTalent(stat) - getLevelFromTalent(statsAtStart[stat].talent)
 				: stats[stat].soulstone - statsAtStart[stat].soulstone;
 	let displayStr = change > 0 ? `(+${change})` : change < 0 ? `(${change})` : ``;
 	document.querySelector(`#stat${stat}${suffix}Inc`).innerText = displayStr;
+	updateTotalSSTalent(stat, suffix, change);
+}
+
+function updateTotalSSTalent(stat, suffix, change) {
+	let totalChange, displayStr;
+	if (suffix === "Talent") {
+		currTalentTotal += change - currTalentList[stat];
+		currTalentList[stat] = change
+		totalChange = currTalentTotal - startTalentTotal;
+	} else {
+		currSSTotal += change - currSSList[stat];
+		currSSList[stat] = change
+		totalChange = currSSTotal - startSSTotal;
+	}
+	displayStr = totalChange > 0 ? `(+${totalChange})` : totalChange < 0 ? `(${totalChange})` : ``;
+	document.querySelector(`#statTotal${suffix}`).innerHTML = currTalentTotal;
+	document.querySelector(`#statTotal${suffix}Inc`).innerHTML = displayStr;
 }
 
 function updateRepeats(town, action) {
-	//show required repeats to gain 1 level, and a user set goal level, default 100
+	//show required repeats to gain 1 level and all remaining levels
 	let level = town.getLevel(action);
 	if (level < 100) {
-		let progressMod = 1
-		{
-			//all modifications to progressMod should be multiplicative, things can have different base rates, AND be affected by glasses.
-			//TODO glasses and pickaxe need a force update on `actions` change, as is they only update on a change to the goal.
-			//handle glasses actions
-			let glasses = actions.next.find(a => a.name === "Buy Glasses" && a.disabled === false);
-			let actionObj = getActionByVarName(action);
-			if (glasses && actionObj.affectedBy?.includes("Buy Glasses")) {
-				progressMod *= 2;
-				if (actionObj.name == "Wander") progressMod *= 2; // wander gets x4 on glasses
-			}
-			
-			//handle Pickaxe/mountain (some things affected by pickaxe are not faster with it, so just handle mountain)
-			if (action == "Mountain") {
-				let pickaxe = actions.next.find(a => a.name === "Buy Pickaxe" && a.disabled === false);
-				progressMod *= pickaxe ? 2 : 1;
-			}
-			
-			//handle constant speed actions
-			let speedModActions = {Wander: 2, Met: 2, Secrets: 5, ThrowParty: 32, Canvassed: .5, Excursion: .5};
-			progressMod *= speedModActions[action] ? speedModActions[action] : 1;
-			
-			//TODO handle special variable actions
-			/* 
-			Hermit 
-				towns[1].finishProgress(this.varName, 50 * (1 + towns[1].getLevel("Shortcut") / 100));
-			Apprentice 
-				towns[2].finishProgress(this.varName, 30 * getCraftGuildRank().bonus);
-			Mason 
-				towns[2].finishProgress(this.varName, 20 * getCraftGuildRank().bonus);
-			Architect 
-				towns[2].finishProgress(this.varName, 10 * getCraftGuildRank().bonus);
-			
-			Stuff for way later
-			Meander
-			ExploreJungle
-			ExplorersGuild
-			PickPockets
-			...more
-			*/		
-		}
-		
 		let actionElement = document.querySelector(`#reqActions${action}`);
 		let goal = Number(actionElement.querySelector(".goal").value);
-		
-		// being lazy with progressMod, haven't double checked to see if it needs to be elsewhere in the formula
-		let toNext = Math.ceil(Math.round((level+1)*(1 - town.getPrcToNext(action)/100))/progressMod)
-		let toGoal = Math.ceil((((goal*(goal+1)/2) - level*(level+1)/2) - (level + 1 - toNext))/progressMod); 
+		let toNext = Math.round((level+1)*(1 - town.getPrcToNext(action)/100))
+		let toGoal = ((goal*(goal+1)/2) - level*(level+1)/2) - (level + 1 - toNext);
 
 		actionElement.querySelector(`.nextReq`).innerText = toNext;
 		actionElement.querySelector(`.goalReq`).innerText = toGoal;
@@ -331,6 +375,13 @@ function createHaggleMax(){
 }
 
 var statsAtStart;
+var startSSTotal;
+var startTalentTotal;
+var currSSTotal;
+var currSSList = {Dexterity: 0, Strength: 0, Constitution: 0, Speed: 0, Perception: 0, Charisma: 0, Intelligence: 0, Luck: 0, Soul: 0};
+var currTalentTotal;
+var currTalentList = {Dexterity: 0, Strength: 0, Constitution: 0, Speed: 0, Perception: 0, Charisma: 0, Intelligence: 0, Luck: 0, Soul: 0};
+
 setTimeout(() => {
     // Growth Tracking and Remaining Actions
     startTracking();
