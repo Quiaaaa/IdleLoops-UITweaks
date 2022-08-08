@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.9
+// @version      0.4.9.1
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
