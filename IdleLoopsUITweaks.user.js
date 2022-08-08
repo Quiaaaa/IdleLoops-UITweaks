@@ -435,8 +435,8 @@ setTimeout(() => {
     addUIElements();
     fitTooltipSetup();
 
-    document.querySelector("#radarStats").addEventListener("input", hideStatGains);
-    document.querySelector("#regularStats").addEventListener("input", showStatGains);
+    //document.querySelector("#radarStats").addEventListener("input", hideStatGains);
+    //document.querySelector("#regularStats").addEventListener("input", showStatGains);
     // Action Efficiency
     document.querySelector('#actionList').children[1].style += 'left:34px';
     let observer = new MutationObserver(calcEff);
