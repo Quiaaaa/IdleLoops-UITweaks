@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.9.1
+// @version      0.4.9.2
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -205,7 +205,7 @@ function updateRepeats(town, action) {
 			//all modifications to progressMod should be multiplicative, things can have different base rates, AND be affected by glasses.
 			//TODO glasses and pickaxe need a force update on `actions` change, as is they only update on a change to the goal.
 			//handle glasses actions
-			let glasses = actions.next.find(a => a.name === "Buy Glasses" && a.disabled === false);
+			let glasses = true // actions.next.find(a => a.name === "Buy Glasses" && a.disabled === false);
 			let actionObj = getActionByVarName(action);
 			if (glasses && actionObj.affectedBy?.includes("Buy Glasses")) {
 				progressMod *= 2;
@@ -214,7 +214,7 @@ function updateRepeats(town, action) {
 			
 			//handle Pickaxe/mountain (some things affected by pickaxe are not faster with it, so just handle mountain)
 			if (action == "Mountain") {
-				let pickaxe = actions.next.find(a => a.name === "Buy Pickaxe" && a.disabled === false);
+				let pickaxe = true // actions.next.find(a => a.name === "Buy Pickaxe" && a.disabled === false);
 				progressMod *= pickaxe ? 2 : 1;
 			}
 			
@@ -245,9 +245,8 @@ function updateRepeats(town, action) {
 		let actionElement = document.querySelector(`#reqActions${action}`);
 		let goal = Number(actionElement.querySelector(".goal").value);
 		
-		// being lazy with progressMod, haven't double checked to see if it needs to be elsewhere in the formula
-		let toNext = Math.ceil(Math.round((level+1)*(1 - town.getPrcToNext(action)/100))/progressMod)
-		let toGoal = Math.ceil((((goal*(goal+1)/2) - level*(level+1)/2) - (level + 1 - toNext))/progressMod); 
+		let toNext = Math.round((level+1)/progressMod* (1 - town.getPrcToNext(action)/100))
+		let toGoal = ((goal*(goal+1)/2)/progressMod - level*(level+1)/2/progressMod) - ((level + 1)/progressMod - toNext); 
 
 		actionElement.querySelector(`.nextReq`).innerText = toNext;
 		actionElement.querySelector(`.goalReq`).innerText = toGoal;
