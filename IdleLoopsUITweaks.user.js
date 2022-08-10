@@ -152,7 +152,7 @@ function resetTotalSS() {
 	});
 	startSSTotal = count;
 	currSSTotal = count;
-	document.querySelector('#statTotalss').innerHTML = count;
+	document.querySelector('#statTotalss').innerHTML = intToString(count, 1);
 	document.querySelector('#statTotalssInc').innerHTML = '';
 }
 
@@ -164,7 +164,7 @@ function resetTotalTalent() {
 	});
 	startTalentTotal = count;
 	currTalentTotal = count;
-	document.querySelector('#statTotalTalent').innerHTML = count;
+	document.querySelector('#statTotalTalent').innerHTML = intToString(count, 1);
 	document.querySelector('#statTotalTalentInc').innerHTML = '';
 
 }
@@ -173,7 +173,8 @@ function updateIncreases(stat, suffix) {
 	//track changes in Talent and SS
 	let change = suffix === "Talent" ? getTalent(stat) - getLevelFromTalent(statsAtStart[stat].talent)
 				: stats[stat].soulstone - statsAtStart[stat].soulstone;
-	let displayStr = change > 0 ? `(+${change})` : change < 0 ? `(${change})` : ``;
+				
+	let displayStr = `(${change > 0 ? "+" : ""}${intToString(change, 1)})`;
 	document.querySelector(`#stat${stat}${suffix}Inc`).innerText = displayStr;
 	updateTotalSSTalent(stat, suffix, change);
 }
@@ -191,8 +192,8 @@ function updateTotalSSTalent(stat, suffix, change) {
 		totalChange = currSSTotal - startSSTotal;
 		newTotal = currSSTotal;
 	}
-	displayStr = totalChange > 0 ? `(+${totalChange})` : totalChange < 0 ? `(${totalChange})` : ``;
-	document.querySelector(`#statTotal${suffix}`).innerHTML = newTotal;
+	displayStr = `(${totalChange > 0 ? "+" : ""}${intToString(totalChange, 1)})`;
+	document.querySelector(`#statTotal${suffix}`).innerHTML = intToString(newTotal, 1);
 	document.querySelector(`#statTotal${suffix}Inc`).innerHTML = displayStr;
 }
 
@@ -248,8 +249,8 @@ function updateRepeats(town, action) {
 		let toNext = Math.round((level+1)/progressMod* (1 - town.getPrcToNext(action)/100))
 		let toGoal = ((goal*(goal+1)/2)/progressMod - level*(level+1)/2/progressMod) - ((level + 1)/progressMod - toNext); 
 
-		actionElement.querySelector(`.nextReq`).innerText = toNext;
-		actionElement.querySelector(`.goalReq`).innerText = toGoal;
+		actionElement.querySelector(`.nextReq`).innerText = intToString(toNext, 1);
+		actionElement.querySelector(`.goalReq`).innerText = intToString(toGoal, 1);
 	}
 	else {
 		document.querySelector(`#reqActions${action}`).style.display = "none";
