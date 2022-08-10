@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.9.3
+// @version      0.4.9.4
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -173,10 +173,11 @@ function updateIncreases(stat, suffix) {
 	//track changes in Talent and SS
 	let change = suffix === "Talent" ? getTalent(stat) - getLevelFromTalent(statsAtStart[stat].talent)
 				: stats[stat].soulstone - statsAtStart[stat].soulstone;
-				
-	let displayStr = `(${change > 0 ? "+" : ""}${intToString(change, 1)})`;
-	document.querySelector(`#stat${stat}${suffix}Inc`).innerText = displayStr;
-	updateTotalSSTalent(stat, suffix, change);
+	if (change != 0) {
+		let displayStr = `(${change > 0 ? "+" : ""}${intToString(change, 1)})`;
+		document.querySelector(`#stat${stat}${suffix}Inc`).innerText = displayStr;
+		updateTotalSSTalent(stat, suffix, change);
+	}
 }
 
 function updateTotalSSTalent(stat, suffix, change) {
