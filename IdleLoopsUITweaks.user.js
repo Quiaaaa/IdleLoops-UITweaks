@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.10
+// @version      0.4.10.1
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -59,7 +59,7 @@ function addUIElements() {
 		document.querySelector(`#prc${action}`).nextElementSibling.insertAdjacentHTML("afterbegin",
 		`<div class="reqActions" id="reqActions${action}">
 		Next: <span class="nextReq"></span>
-		<input class="goal" value="100" style="width: 20px; top: -2px; margin-left:10px">:
+		<input class="goal" value="100" style="width: 1.5rem; top: -2px; margin-left:10px">:
 		<span class="goalReq"></span>
 		</div>`)
 		document.querySelector(`#reqActions${action}`).childNodes[3].addEventListener('input', function() {updateRepeats(town,action)})
