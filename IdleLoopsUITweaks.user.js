@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.9.4
+// @version      0.4.10
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -205,7 +205,9 @@ function updateRepeats(town, action) {
 		let progressMod = 1
 		{
 			//all modifications to progressMod should be multiplicative, things can have different base rates, AND be affected by glasses.
-			//TODO glasses and pickaxe need a force update on `actions` change, as is they only update on a change to the goal.
+			/* TODO glasses and pickaxe need a force update on `actions` change, as is they only update on a change to the goal.
+			   Because this is a really shitty UX, glasses and pickaxes are always assumed on for now. 
+			*/
 			//handle glasses actions
 			let glasses = true // actions.next.find(a => a.name === "Buy Glasses" && a.disabled === false);
 			let actionObj = getActionByVarName(action);
@@ -221,27 +223,58 @@ function updateRepeats(town, action) {
 			}
 			
 			//handle constant speed actions
-			let speedModActions = {Wander: 2, Met: 2, Secrets: 5, ThrowParty: 32, Canvassed: .5, Excursion: .5};
+			let speedModActions = {Wander: 2, Met: 2, Secrets: 5, ThrowParty: 32, 
+								   Hermit: .5, Canvassed: .5, Excursion: .5, 
+								   Apprentice: .3, Mason: .2, Architect: .1,
+								   ExploreJungle: .2,
+								   PickPockets: .3, RobWarehouse: .2, InsuranceFraud: .1,
+								   BuildTower: 5.05};
 			progressMod *= speedModActions[action] ? speedModActions[action] : 1;
 			
-			//TODO handle special variable actions
-			/* 
-			Hermit 
-				towns[1].finishProgress(this.varName, 50 * (1 + towns[1].getLevel("Shortcut") / 100));
-			Apprentice 
-				towns[2].finishProgress(this.varName, 30 * getCraftGuildRank().bonus);
-			Mason 
-				towns[2].finishProgress(this.varName, 20 * getCraftGuildRank().bonus);
-			Architect 
-				towns[2].finishProgress(this.varName, 10 * getCraftGuildRank().bonus);
+			// Hook in to the predictor cache to get the guild and guild rank
+			let cachedResources = Koviko.cache.cache?.at(-1)?.data[0]?.resources
+			let guild = cachedResources?.guild;
 			
-			Stuff for way later
-			Meander
-			ExploreJungle
-			ExplorersGuild
-			PickPockets
-			...more
-			*/		
+			switch (action) {
+				case "Hermit":
+					progressMod *= (1 + towns[1].getLevel("Shortcut") / 100);
+					break;
+				case "Apprentice": // Crafting Guild Actions
+				case "Mason":
+				case "Architect":
+					progressMod *= getCraftGuildRank(guild == "crafting" ? cachedResources?.crafts : 0).bonus;
+					break;
+				case "Meander": 
+					progressMod = getBuffLevel("Imbuement"); // Not a multiplier. There will be div by zero errors here, joy
+					break;
+				case "ExploreJungle":
+					progressMod *= getFightJungleMonstersRank().bonus;
+					break;
+				case "PickPockets": // Thieves Guild Actions
+				case "RobWarehouse": 
+				case "InsuranceFraud":
+					progressMod *= getThievesGuildRank(guild == "thieves" ? cachedResources?.thieves : 0).bonus;
+					break;
+				case "SurveyZ0": // Survey Actions
+				case "SurveyZ1":
+				case "SurveyZ2":
+				case "SurveyZ3":
+				case "SurveyZ4":
+				case "SurveyZ5":
+				case "SurveyZ6":
+				case "SurveyZ7":
+				case "SurveyZ8":
+					progressMod = getExploreSkill(); // Not a multiplier
+					break;
+			}
+			
+			/* 
+			TODO
+			Unimplemented actions
+			
+			ExplorersGuild // Random exploration?  Might not need to handle it at all.
+			if (getExploreSkill() == 0) towns[this.townNum].finishProgress("SurveyZ"+this.townNum, 100);
+			*/
 		}
 		
 		let actionElement = document.querySelector(`#reqActions${action}`);
