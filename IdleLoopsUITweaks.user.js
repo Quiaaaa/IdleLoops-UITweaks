@@ -59,7 +59,7 @@ function addUIElements() {
 		document.querySelector(`#prc${action}`).nextElementSibling.insertAdjacentHTML("afterbegin",
 		`<div class="reqActions" id="reqActions${action}">
 		Next: <span class="nextReq"></span>
-		<input class="goal" value="100" style="width: 1.5rem; top: -0.5px; margin-left: 10px; text-align: center; margin-bottom: 1px; border-width: 0.5px;">:
+		<input class="goal" value="100" style="width: 1.5rem; top: -0.5px; margin-left: 10px; text-align: center; margin-bottom: 1px; border-width: 0.5px;"> :
 		<span class="goalReq"></span>
 		</div>`)
 		document.querySelector(`#reqActions${action}`).childNodes[3].addEventListener('input', function() {updateRepeats(town,action)})
