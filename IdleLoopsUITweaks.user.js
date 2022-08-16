@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5
+// @version      0.5.1
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -502,12 +502,7 @@ function updateAll() {
 }
 
 
-// wrapper for predictor to update things on change
-Koviko.originalUpdate = Koviko.update;
-Koviko.update = function() {
-    Koviko.originalUpdate(...arguments);
-	updateAll()
-}
+
 
 var statsAtStart;
 var startSSTotal;
@@ -522,6 +517,13 @@ setTimeout(() => {
     startTracking();
     addUIElements();
     fitTooltipSetup();
+	
+	// wrapper for predictor to update things on change
+	Koviko.originalUpdate = Koviko.update;
+	Koviko.update = function() {
+		Koviko.originalUpdate(...arguments);
+		updateAll()
+	}
 
     //document.querySelector("#radarStats").addEventListener("input", hideStatGains);
     //document.querySelector("#regularStats").addEventListener("input", showStatGains);
