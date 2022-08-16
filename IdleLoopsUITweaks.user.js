@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.4.10.2
+// @version      0.5
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -47,7 +47,7 @@ function addUIElements() {
 		statElem.children[0].style = 'width: 10%; font-weight: bold; margin-left: 18px; margin-top: 5px' // Name
 		statElem.children[1].style = 'width: 30%; color: #737373; '; // SS
 		statElem.children[2].style = 'width: 30%;' // Talent
-		statElem.children[3].style = 'width: 15%; font-weight: bold'; // Level
+		statElem.children[3].style = 'width: 12%; font-weight: bold'; // Level
 	}); 
 
 	//Progress requirements for Explore Actions
@@ -65,7 +65,25 @@ function addUIElements() {
 		document.querySelector(`#reqActions${action}`).childNodes[3].addEventListener('input', function() {updateRepeats(town,action)})
 		// Call update once to create the text
 		updateRepeats(town, action);
-	}))
+	}));
+	
+	//Goal Tracking for Skills
+	skillList.forEach((skill) => {
+		let observer = new MutationObserver(function() { updateSkillRepeats(skill) });
+		let skillEl = document.querySelector(`#skill${skill}LevelBar`); 
+		//Observer for the skill progress
+		observer.observe(skillEl, {attributes: true, childList: true, characterData: true});
+		
+		// TODO formatting is functional but could use work
+		document.querySelector(`#skill${skill}Container .statNum`).insertAdjacentHTML("afterend", 
+		`<div id="skillReqActions${skill}" style="font-size: 13px; margin-right: .5rem; float: right;">
+		<input class="goal" value="${getSkillLevelFromExp(skills[skill].exp)+1}" style="width: 1.5rem; top: -0.5px; margin-left: 10px; text-align: center; margin-bottom: 1px; border-width: 0.5px;">
+		<span class="goalReq" style="display: inline-block; width: 3rem"></span>
+		</div>`);
+		document.querySelector(`#skillReqActions${skill}`).childNodes[1].addEventListener('input', function() {updateSkillRepeats(skill)})
+		// Call update once to create the text
+		updateSkillRepeats(skill);
+	});
 
 	//Create reset button
 	let btn = document.createElement("button");
@@ -103,7 +121,6 @@ function addUIElements() {
 }
 
 function createTotaltracker(parent, trackID) {
-
 	let totalTracker = document.createElement('div');
 	totalTracker.classList.add('statNum');
 	parent.appendChild(totalTracker);
@@ -205,11 +222,8 @@ function updateRepeats(town, action) {
 		let progressMod = 1
 		{
 			//all modifications to progressMod should be multiplicative, things can have different base rates, AND be affected by glasses.
-			/* TODO glasses and pickaxe need a force update on `actions` change, as is they only update on a change to the goal.
-			   Because this is a really shitty UX, glasses and pickaxes are always assumed on for now. 
-			*/
 			//handle glasses actions
-			let glasses = true // actions.next.find(a => a.name === "Buy Glasses" && a.disabled === false);
+			let glasses = actions.next.find(a => a.name === "Buy Glasses" && a.disabled === false);
 			let actionObj = getActionByVarName(action);
 			if (glasses && actionObj.affectedBy?.includes("Buy Glasses")) {
 				progressMod *= 2;
@@ -218,7 +232,7 @@ function updateRepeats(town, action) {
 			
 			//handle Pickaxe/mountain (some things affected by pickaxe are not faster with it, so just handle mountain)
 			if (action == "Mountain") {
-				let pickaxe = true // actions.next.find(a => a.name === "Buy Pickaxe" && a.disabled === false);
+				let pickaxe = actions.next.find(a => a.name === "Buy Pickaxe" && a.disabled === false);
 				progressMod *= pickaxe ? 2 : 1;
 			}
 			
@@ -288,6 +302,33 @@ function updateRepeats(town, action) {
 	}
 	else {
 		document.querySelector(`#reqActions${action}`).style.display = "none";
+	}
+}
+
+function updateSkillRepeats(skill) {
+	// Use the predictor cache to calculate loops required to reach the goal
+	let skillElement = document.querySelector(`#skillReqActions${skill}`);
+	let goal = Number(skillElement.querySelector(".goal").value);
+	
+	//auto adjust goals upward
+	if (goal <= getSkillLevel(skill)) {
+		skillElement.querySelector(".goal").value = goal + 1;
+		goal += 1;
+	}
+	
+	let expToGoal = (getExpOfSkillLevel(goal) - skills[skill].exp);
+	let start = Koviko.cache.cache.at(0)?.data[0].skills;
+	let end = Koviko.cache.cache.at(-1)?.data[0].skills;
+	let skillExpGain = end[skill.toLowerCase()] - start[skill.toLowerCase()];
+	let loopsToGoal = expToGoal / skillExpGain;
+	
+	if (skillExpGain > 0) {
+		skillElement.querySelector(`.goalReq`).innerText = intToString(loopsToGoal, 2);
+		//document.querySelector(`#skillReqActions${skill}`).style.display = ""
+	}
+	else {
+		skillElement.querySelector(`.goalReq`).innerText = "";
+		//document.querySelector(`#skillReqActions${skill}`).style.display = "none";
 	}
 }
 
@@ -453,6 +494,19 @@ function createHaggleMax(){
 			document.querySelector(`#nextActionContainer${i}`).children[1].insertAdjacentElement("afterbegin",haggleCap);
 		}
 	}
+}
+
+function updateAll() {
+	skillList.forEach((skill) => updateSkillRepeats(skill));
+	updateTarget();
+}
+
+
+// wrapper for predictor to update things on change
+Koviko.originalUpdate = Koviko.update;
+Koviko.update = function() {
+    Koviko.originalUpdate(...arguments);
+	updateAll()
 }
 
 var statsAtStart;
