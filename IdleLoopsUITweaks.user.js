@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Quia's IdleLoops UI Mods
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5.1
+// @version      0.5.2
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -310,8 +310,8 @@ function updateSkillRepeats(skill) {
 	let skillElement = document.querySelector(`#skillReqActions${skill}`);
 	let goal = Number(skillElement.querySelector(".goal").value);
 	
-	//auto adjust goals upward
-	if (goal <= getSkillLevel(skill)) {
+	//auto adjust goals upward if we're not editing it
+	if (goal <= getSkillLevel(skill) && document.activeElement != skillElement.querySelector(".goal")) {
 		skillElement.querySelector(".goal").value = goal + 1;
 		goal += 1;
 	}
