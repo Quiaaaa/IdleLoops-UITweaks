@@ -259,7 +259,7 @@ function updateRepeats(town, action) {
 					progressMod *= getCraftGuildRank(guild == "crafting" ? resources.crafts : 0).bonus;
 					break;
 				case "Meander": 
-					progressMod = getBuffLevel("Imbuement"); // Not a multiplier. There will be div by zero errors here, joy
+					progressMod = getBuffLevel("Imbuement") / 100; // Not a multiplier. There will be div by zero errors here, joy
 					break;
 				case "ExploreJungle":
 					progressMod *= getFightJungleMonstersRank().bonus;
