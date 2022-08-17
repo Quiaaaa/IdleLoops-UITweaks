@@ -320,7 +320,7 @@ function updateSkillRepeats(skill) {
 	let start = Koviko.cache.cache.at(0)?.data[0].skills[skill.toLowerCase()]; // initial state from the cache
 	let end = Koviko.state.skills[skill.toLowerCase()]; // final state from predictor
 	let skillExpGain = end - start;
-	let loopsToGoal = expToGoal / skillExpGain;
+	let loopsToGoal = Math.ceil(expToGoal / skillExpGain * 10) / 10; // always round up, one decimal place
 	
 	if (skillExpGain > 0) {
 		skillElement.querySelector(`.goalReq`).innerText = intToString(loopsToGoal, 2);
