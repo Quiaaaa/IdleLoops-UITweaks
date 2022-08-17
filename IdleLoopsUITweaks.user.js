@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Quia's IdleLoops UI Mods
+// @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5.2
+// @version      0.5.3
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -245,9 +245,9 @@ function updateRepeats(town, action) {
 								   BuildTower: 5.05};
 			progressMod *= speedModActions[action] ? speedModActions[action] : 1;
 			
-			// Hook in to the predictor cache to get the guild and guild rank
-			let cachedResources = Koviko.cache.cache?.at(-1)?.data[0]?.resources
-			let guild = cachedResources?.guild;
+			// Hook in to the predictor state to get the guild and guild rank
+			let resources = Koviko.state.resources
+			let guild = resources.guild;
 			
 			switch (action) {
 				case "Hermit":
@@ -256,10 +256,10 @@ function updateRepeats(town, action) {
 				case "Apprentice": // Crafting Guild Actions
 				case "Mason":
 				case "Architect":
-					progressMod *= getCraftGuildRank(guild == "crafting" ? cachedResources?.crafts : 0).bonus;
+					progressMod *= getCraftGuildRank(guild == "crafting" ? resources.crafts : 0).bonus;
 					break;
 				case "Meander": 
-					progressMod = getBuffLevel("Imbuement"); // Not a multiplier. There will be div by zero errors here, joy
+					progressMod = getBuffLevel("Imbuement") / 100; // Not a multiplier. There will be div by zero errors here, joy
 					break;
 				case "ExploreJungle":
 					progressMod *= getFightJungleMonstersRank().bonus;
@@ -267,7 +267,7 @@ function updateRepeats(town, action) {
 				case "PickPockets": // Thieves Guild Actions
 				case "RobWarehouse": 
 				case "InsuranceFraud":
-					progressMod *= getThievesGuildRank(guild == "thieves" ? cachedResources?.thieves : 0).bonus;
+					progressMod *= getThievesGuildRank(guild == "thieves" ? resources.thieves : 0).bonus;
 					break;
 				case "SurveyZ0": // Survey Actions
 				case "SurveyZ1":
@@ -306,7 +306,7 @@ function updateRepeats(town, action) {
 }
 
 function updateSkillRepeats(skill) {
-	// Use the predictor cache to calculate loops required to reach the goal
+	// Use the predictor output to calculate loops required to reach the goal
 	let skillElement = document.querySelector(`#skillReqActions${skill}`);
 	let goal = Number(skillElement.querySelector(".goal").value);
 	
@@ -317,10 +317,10 @@ function updateSkillRepeats(skill) {
 	}
 	
 	let expToGoal = (getExpOfSkillLevel(goal) - skills[skill].exp);
-	let start = Koviko.cache.cache.at(0)?.data[0].skills;
-	let end = Koviko.cache.cache.at(-1)?.data[0].skills;
-	let skillExpGain = end[skill.toLowerCase()] - start[skill.toLowerCase()];
-	let loopsToGoal = expToGoal / skillExpGain;
+	let start = Koviko.cache.cache.at(0)?.data[0].skills[skill.toLowerCase()]; // initial state from the cache
+	let end = Koviko.state.skills[skill.toLowerCase()]; // final state from predictor
+	let skillExpGain = end - start;
+	let loopsToGoal = Math.ceil(expToGoal / skillExpGain * 10) / 10; // always round up, one decimal place
 	
 	if (skillExpGain > 0) {
 		skillElement.querySelector(`.goalReq`).innerText = intToString(loopsToGoal, 2);
@@ -366,7 +366,7 @@ function calcEff() {
         // predictor supports calculating # of repeats for last action with repeats enabled, and the element with the predicted count gets a unique "finLoops" class if this is enabled
         let finLoops = document.querySelector('li.finLoops');
         if (finLoops) {
-            actionCount += finLoops.innerHTML * 1.0 - actions.next[lastAction].loops;
+            actionCount += finLoops.innerHTML.replace(/,/g, '') * 1.0 - actions.next[lastAction].loops;
         }
         if (Koviko.totalDisplay.parentNode.children.length == 4) {
             createEffText(actionCount, seconds, imageSrc);
