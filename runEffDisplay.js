@@ -1,9 +1,11 @@
 window.displayManaEff = () => {
 	// Console display of the mana/time efficiencies of all used mana/gold gain actions.
+	// TODO after that PR gets merged, switch to using Koviko.state
 	let previous = Koviko.cache.cache[0].data[0].resources;
 	let actions = {
 		"Sell Potions": {time: 0, mana: 0, order: 0}, 
-		"Sell Artifact": {time: 0, mana: 0, order: 0}
+		"Sell Artifact": {time: 0, mana: 0, order: 0},
+		"Adventure Guild": {time: 0, mana: 0, order: 0},
 	};	
 	for (pred of Koviko.cache.cache) {
 		let name = pred.key[0];
@@ -18,6 +20,10 @@ window.displayManaEff = () => {
 			case "Take Artifacts":
 				// TODO This is wrong if we donate any artifacts, good luck figuring that out.
 				actions["Sell Artifact"].time += current.actionTicks; 
+				break;
+			case "Hunt": // Adventure Guild Actions
+			case "Craft Armor":
+				actions["Adventure Guild"].time += current.actionTicks;
 				break;
 		}
 		
