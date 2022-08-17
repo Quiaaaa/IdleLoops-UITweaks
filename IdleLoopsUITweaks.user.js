@@ -317,8 +317,8 @@ function updateSkillRepeats(skill) {
 	}
 	
 	let expToGoal = (getExpOfSkillLevel(goal) - skills[skill].exp);
-	let start = skills[skill].exp;
-	let end = Koviko.state.skills[skill.toLowerCase()];
+	let start = Koviko.cache.cache.at(0)?.data[0].skills[skill.toLowerCase()]; // initial state from the cache
+	let end = Koviko.state.skills[skill.toLowerCase()]; // final state from predictor
 	let skillExpGain = end - start;
 	let loopsToGoal = expToGoal / skillExpGain;
 	
