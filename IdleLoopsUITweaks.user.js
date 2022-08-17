@@ -245,9 +245,9 @@ function updateRepeats(town, action) {
 								   BuildTower: 5.05};
 			progressMod *= speedModActions[action] ? speedModActions[action] : 1;
 			
-			// Hook in to the predictor cache to get the guild and guild rank
-			let cachedResources = Koviko.cache.cache?.at(-1)?.data[0]?.resources
-			let guild = cachedResources?.guild;
+			// Hook in to the predictor state to get the guild and guild rank
+			let resources = Koviko.state.resources
+			let guild = resources.guild;
 			
 			switch (action) {
 				case "Hermit":
@@ -256,7 +256,7 @@ function updateRepeats(town, action) {
 				case "Apprentice": // Crafting Guild Actions
 				case "Mason":
 				case "Architect":
-					progressMod *= getCraftGuildRank(guild == "crafting" ? cachedResources?.crafts : 0).bonus;
+					progressMod *= getCraftGuildRank(guild == "crafting" ? resources.crafts : 0).bonus;
 					break;
 				case "Meander": 
 					progressMod = getBuffLevel("Imbuement"); // Not a multiplier. There will be div by zero errors here, joy
@@ -267,7 +267,7 @@ function updateRepeats(town, action) {
 				case "PickPockets": // Thieves Guild Actions
 				case "RobWarehouse": 
 				case "InsuranceFraud":
-					progressMod *= getThievesGuildRank(guild == "thieves" ? cachedResources?.thieves : 0).bonus;
+					progressMod *= getThievesGuildRank(guild == "thieves" ? resources.thieves : 0).bonus;
 					break;
 				case "SurveyZ0": // Survey Actions
 				case "SurveyZ1":
@@ -306,7 +306,7 @@ function updateRepeats(town, action) {
 }
 
 function updateSkillRepeats(skill) {
-	// Use the predictor cache to calculate loops required to reach the goal
+	// Use the predictor output to calculate loops required to reach the goal
 	let skillElement = document.querySelector(`#skillReqActions${skill}`);
 	let goal = Number(skillElement.querySelector(".goal").value);
 	
@@ -317,9 +317,9 @@ function updateSkillRepeats(skill) {
 	}
 	
 	let expToGoal = (getExpOfSkillLevel(goal) - skills[skill].exp);
-	let start = Koviko.cache.cache.at(0)?.data[0].skills;
-	let end = Koviko.cache.cache.at(-1)?.data[0].skills;
-	let skillExpGain = end[skill.toLowerCase()] - start[skill.toLowerCase()];
+	let start = skills[skill].exp;
+	let end = Koviko.state.skills[skill.toLowerCase()];
+	let skillExpGain = end - start;
 	let loopsToGoal = expToGoal / skillExpGain;
 	
 	if (skillExpGain > 0) {
