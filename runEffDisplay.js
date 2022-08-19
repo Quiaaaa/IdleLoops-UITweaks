@@ -1,11 +1,12 @@
 window.displayManaEff = () => {
 	// Console display of the mana/time efficiencies of all used mana/gold gain actions.
-	// TODO after that PR gets merged, switch to using Koviko.state
+	let manaPerGold = Math.floor(50 * getSkillBonus("Mercantilism"));
 	let previous = Koviko.cache.cache[0].data[0].resources;
 	let actions = {
-		"Sell Potions": {time: 0, mana: 0, order: 0}, 
-		"Sell Artifact": {time: 0, mana: 0, order: 0},
-		"Adventure Guild": {time: 0, mana: 0, order: 0},
+		"Sell Potions": {time: 0, mana: 0, gold: 0, order: 0}, 
+		"Sell Artifact": {time: 0, mana: 0, gold: 0, order: 0},
+		"Adventure Guild": {time: 0, mana: 0, gold: 0, order: 0},
+		"Mana Geyser": {time: 0, mana: 0, gold: 0, order: 0},
 	};	
 	for (pred of Koviko.cache.cache) {
 		let name = pred.key[0];
@@ -25,12 +26,18 @@ window.displayManaEff = () => {
 			case "Craft Armor":
 				actions["Adventure Guild"].time += current.actionTicks;
 				break;
+			case "Buy Pickaxe":
+				actions["Mana Geyser"].time += current.actionTicks;
+				actions["Mana Geyser"].gold -= 200;
+				break;
 		}
 		
 		for (resource of ["mana", "gold"]) {
-			delta = current[resource] - previous[resource]
-			if (resource === "gold") { delta *= 56 } // TODO include actual merc here
+			delta = current[resource] - previous[resource];
+			if (resource === "gold") { delta *= manaPerGold; } 
+			if (actions[name]?.gold > 0) { delta += actions[name].gold * manaPerGold; }
 			if (name?.includes("Buy Mana")) break;
+			
 			if (delta > 0) {
 				if (!(name in actions)) { actions[name] = {time: 0, mana: 0}; }
 				actions[name].time += current.actionTicks;
