@@ -245,7 +245,7 @@ function updateRepeats(town, action) {
 								   BuildTower: 5.05};
 			progressMod *= speedModActions[action] ? speedModActions[action] : 1;
 			
-			// Hook in to the predictor state to get the guild and guild rank
+			// Hook in to the predictor state to get the guild, guild rank, and any relevant buffs this loop
 			let resources = Koviko.state.resources
 			let guild = resources.guild;
 			
@@ -259,7 +259,7 @@ function updateRepeats(town, action) {
 					progressMod *= getCraftGuildRank(guild == "crafting" ? resources.crafts : 0).bonus;
 					break;
 				case "Meander": 
-					progressMod = getBuffLevel("Imbuement") / 100; // Not a multiplier. There will be div by zero errors here, joy
+					progressMod = (getBuffLevel("Imbuement") + resources?.mind ) / 100; // Not a multiplier.
 					break;
 				case "ExploreJungle":
 					progressMod *= getFightJungleMonstersRank().bonus;
