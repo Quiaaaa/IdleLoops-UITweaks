@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5.4
+// @version      0.5.5
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -262,8 +262,8 @@ function updateRepeats(town, action) {
 					progressMod = (getBuffLevel("Imbuement") + resources?.mind ) / 100; // Not a multiplier.
 					break;
 				case "ExploreJungle":
-					progressMod *= precision3(1 + 0.05 * Math.pow(calcJungleSegments(Koviko.state.progress['Fight Jungle Monsters'].completed,
-                                                                                     Koviko.state.progress['Fight Jungle Monsters'].progress), 1.05));
+					progressMod *= precision3(1 + 0.05 * Math.pow(calcJungleSegments(Koviko.state.progress['Fight Jungle Monsters']?.completed,
+                                                                                     Koviko.state.progress['Fight Jungle Monsters']?.progress), 1.05));
 					break;
 				case "PickPockets": // Thieves Guild Actions
 				case "RobWarehouse": 
