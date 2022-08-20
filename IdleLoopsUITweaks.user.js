@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5.3
+// @version      0.5.4
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -262,7 +262,8 @@ function updateRepeats(town, action) {
 					progressMod = (getBuffLevel("Imbuement") + resources?.mind ) / 100; // Not a multiplier.
 					break;
 				case "ExploreJungle":
-					progressMod *= getFightJungleMonstersRank().bonus;
+					progressMod *= precision3(1 + 0.05 * Math.pow(calcJungleSegments(Koviko.state.progress['Fight Jungle Monsters'].completed,
+                                                                                     Koviko.state.progress['Fight Jungle Monsters'].progress), 1.05));
 					break;
 				case "PickPockets": // Thieves Guild Actions
 				case "RobWarehouse": 
@@ -303,6 +304,13 @@ function updateRepeats(town, action) {
 	else {
 		document.querySelector(`#reqActions${action}`).style.display = "none";
 	}
+}
+
+function calcJungleSegments(segment, progress) {
+	let seg1Cost = precision3(Math.pow(1.3,segment))*1e8;
+	let seg2Cost = precision3(Math.pow(1.3,segment+1))*1e8;
+	let segments = (progress - seg1Cost < 0) ? segment : (progress - seg1Cost - seg2Cost < 0) ? segment + 1 : segment + 2;
+	return segments;
 }
 
 function updateSkillRepeats(skill) {
