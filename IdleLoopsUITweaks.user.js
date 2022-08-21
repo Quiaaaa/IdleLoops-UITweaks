@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5.6
+// @version      0.5.7
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -259,7 +259,7 @@ function updateRepeats(town, action) {
 					progressMod *= getCraftGuildRank(guild == "crafting" ? resources.crafts : 0).bonus;
 					break;
 				case "Meander": 
-					progressMod = (getBuffLevel("Imbuement") + resources?.mind ) / 100; // Not a multiplier.
+					progressMod = (getBuffLevel("Imbuement")  + (('Imbue Mind' in Koviko.state?.currProgress) ? Koviko.state?.currProgress['Imbue Mind']: 0)) / 100; // Not a multiplier.
 					break;
 				case "ExploreJungle":
 					progressMod *= calcJungleMulti(Koviko.state.progress['Fight Jungle Monsters']?.completed,Koviko.state.progress['Fight Jungle Monsters']?.progress);
