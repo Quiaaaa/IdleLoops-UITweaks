@@ -35,6 +35,7 @@ window.displayManaEff = () => {
 		for (resource of ["mana", "gold"]) {
 			delta = current[resource] - previous[resource];
 			if (resource === "gold") { delta *= manaPerGold; } 
+			else if (delta > 0) { delta += current.actionTicks/100 * getSpeedMult(current.town) * 50; }
 			if (actions[name]?.gold > 0) { delta += actions[name].gold * manaPerGold; }
 			if (name?.includes("Buy Mana")) break;
 			
