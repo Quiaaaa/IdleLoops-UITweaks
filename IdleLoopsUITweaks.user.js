@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5.7
+// @version      0.5.8
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -294,8 +294,8 @@ function updateRepeats(town, action) {
 		let actionElement = document.querySelector(`#reqActions${action}`);
 		let goal = Number(actionElement.querySelector(".goal").value);
 		
-		let toNext = Math.round((level+1)/progressMod* (1 - town.getPrcToNext(action)/100))
-		let toGoal = ((goal*(goal+1)/2)/progressMod - level*(level+1)/2/progressMod) - ((level + 1)/progressMod - toNext); 
+		let toNext = Math.ceil((level+1)/progressMod* (1 - town.getPrcToNext(action)/100))
+		let toGoal = ((goal*(goal+1)/2) - level*(level+1)/2)/progressMod - ((level + 1)/progressMod - toNext); 
 
 		actionElement.querySelector(`.nextReq`).innerText = intToString(toNext, 1);
 		actionElement.querySelector(`.goalReq`).innerText = intToString(toGoal, 1);
