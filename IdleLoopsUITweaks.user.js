@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.5.8
+// @version      0.6.0
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -92,6 +92,9 @@ function addUIElements() {
 	btn.className = "button";
 	btn.onclick = function() { resetTracking() }
 	document.querySelectorAll("div#statsWindow label.localized")[1].insertAdjacentElement("afterend", btn)
+	
+	//Replace Max Training function
+	document.querySelector("#maxTraining").onclick = function() { betterCapTraining(); };
 
 	//realign Stats box to make it easier to fit them in, align action info with progress bar
 	var style = document.createElement('style');
@@ -504,6 +507,24 @@ function createHaggleMax(){
 		}
 	}
 }
+
+
+function betterCapTraining() {
+	// Only increase training actions that were at the previous cap (assumed from highest training action in the loop)
+	let actionsCopy = structuredClone(actions.next);
+	let maxCurrentTraining = Math.max(...actions.next.filter((action) => trainingActions.includes(action.name)).map((action) => action.loops));
+	
+	if (maxCurrentTraining < trainingLimits) {
+		actionsCopy.forEach((action) => { 
+			if (trainingActions.includes(action.name) && action.loops == maxCurrentTraining) {
+				action.loops = trainingLimits;
+			} 
+		})
+	}
+	actions.next = actionsCopy;
+	view.updateNextActions();
+}
+
 
 function updateAll() {
 	skillList.forEach((skill) => updateSkillRepeats(skill));
