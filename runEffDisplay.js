@@ -7,6 +7,7 @@ window.displayManaEff = () => {
 		"Sell Artifact": {time: 0, mana: 0, gold: 0, order: 0},
 		"Adventure Guild": {time: 0, mana: 0, gold: 0, order: 0},
 		"Mana Geyser": {time: 0, mana: 0, gold: 0, order: 0},
+		"Collect Taxes": {time: 0, mana: 0, gold: 0, order: 0},
 	};	
 	for (pred of Koviko.cache.cache) {
 		let name = pred.key[0];
@@ -30,6 +31,8 @@ window.displayManaEff = () => {
 				actions["Mana Geyser"].time += current.actionTicks;
 				actions["Mana Geyser"].gold -= 200;
 				break;
+			case "Build Housing":
+				actions["Collect Taxes"].time += current.actionTicks;
 		}
 		
 		for (resource of ["mana", "gold"]) {
