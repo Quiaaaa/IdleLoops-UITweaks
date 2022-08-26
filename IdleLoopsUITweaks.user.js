@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.6.0
+// @version      0.6.1
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -68,19 +68,41 @@ function addUIElements() {
 	}));
 	
 	//Goal Tracking for Skills
+	document.querySelector("#skillTCombatContainer").insertAdjacentHTML("afterend", "<br><br>") // fuck this (alternative is to line up the combat stats with the other stats and I don't want to)
 	skillList.forEach((skill) => {
 		let observer = new MutationObserver(function() { updateSkillRepeats(skill) });
 		let skillEl = document.querySelector(`#skill${skill}LevelBar`); 
 		//Observer for the skill progress
 		observer.observe(skillEl, {attributes: true, childList: true, characterData: true});
 		
-		// TODO formatting is functional but could use work
-		document.querySelector(`#skill${skill}Container .statNum`).insertAdjacentHTML("afterend", 
-		`<div id="skillReqActions${skill}" style="font-size: 13px; margin-right: .5rem; float: right;">
-		<input class="goal" value="${getSkillLevelFromExp(skills[skill].exp)+1}" style="width: 1.5rem; top: -0.5px; margin-left: 10px; text-align: center; margin-bottom: 1px; border-width: 0.5px;">
-		<span class="goalReq" style="display: inline-block; width: 3rem"></span>
-		</div>`);
-		document.querySelector(`#skillReqActions${skill}`).childNodes[1].addEventListener('input', function() {updateSkillRepeats(skill)})
+		let container = document.createElement("div");
+		container.style = "float: right";
+		
+		let currentSkill = document.querySelector(`#skill${skill}Container .statNum`);
+		let newSkill = currentSkill.cloneNode(true);
+		newSkill.style = "float: left";
+		container.appendChild(newSkill);
+		
+		let goalContainer = document.createElement("div");
+		goalContainer.id = `skillReqActions${skill}`;
+		goalContainer.style = "font-size: 13px; margin-left: .5rem; float: right;";
+		container.appendChild(goalContainer);
+		
+		let goalInput = document.createElement("input");
+		goalInput.className = "goal";
+		goalInput.value = `${getSkillLevelFromExp(skills[skill].exp)+1}`;
+		goalInput.style = "width: 1.5rem; top: -0.5px; margin-left: 10px; text-align: center; margin-bottom: 1px; border-width: 0.5px;" // what even is this nightmare?
+		goalInput.addEventListener('input', function() { updateSkillRepeats(skill) })
+		goalContainer.appendChild(goalInput);
+		
+		let goalOut = document.createElement("span");
+		goalOut.className = "goalReq";
+		goalOut.style = "display: inline-block; width: 3rem";
+		goalContainer.appendChild(goalOut);
+		
+		// replace the old skill display with the enhanced one
+		currentSkill.replaceWith(container);
+		
 		// Call update once to create the text
 		updateSkillRepeats(skill);
 	});
