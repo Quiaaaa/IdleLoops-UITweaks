@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.6.1
+// @version      0.6.2
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -273,7 +273,7 @@ function updateRepeats(town, action) {
 			// Hook in to the predictor state to get the guild, guild rank, and any relevant buffs this loop
 			let resources = Koviko.state.resources
 			let guild = resources.guild;
-			
+			let segment = 0;
 			switch (action) {
 				case "Hermit":
 					progressMod *= (1 + towns[1].getLevel("Shortcut") / 100);
@@ -281,7 +281,8 @@ function updateRepeats(town, action) {
 				case "Apprentice": // Crafting Guild Actions
 				case "Mason":
 				case "Architect":
-					progressMod *= getCraftGuildRank(guild == "crafting" ? resources.crafts : 0).bonus;
+					segment = guild == "crafting" ? resources.crafts : 0;
+					progressMod *= precision3(1 + segment / 20 + Math.pow(segment, 2) / 300);
 					break;
 				case "Meander": 
 					progressMod = (getBuffLevel("Imbuement")  + (('Imbue Mind' in Koviko.state?.currProgress) ? Koviko.state?.currProgress['Imbue Mind']: 0)) / 100; // Not a multiplier.
@@ -292,7 +293,8 @@ function updateRepeats(town, action) {
 				case "PickPockets": // Thieves Guild Actions
 				case "RobWarehouse": 
 				case "InsuranceFraud":
-					progressMod *= getThievesGuildRank(guild == "thieves" ? resources.thieves : 0).bonus;
+					segment = guild == "thieves" ? resources.thieves : 0;
+					progressMod *= precision3(1 + segment / 20 + Math.pow(segment, 2) / 300);
 					break;
 				case "SurveyZ0": // Survey Actions
 				case "SurveyZ1":
