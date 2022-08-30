@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.6.2
+// @version      0.6.3
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -305,7 +305,7 @@ function updateRepeats(town, action) {
 				case "SurveyZ6":
 				case "SurveyZ7":
 				case "SurveyZ8":
-					progressMod = getExploreSkill(); // Not a multiplier
+					progressMod = getExploreSkill() / 100; // Not a multiplier. Also 1/100.  Yay.
 					break;
 			}
 			
