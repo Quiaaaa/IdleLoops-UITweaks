@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.6.3
+// @version      0.6.4
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -235,7 +235,7 @@ function updateTotalSSTalent(stat, suffix, change) {
 		totalChange = currSSTotal - startSSTotal;
 		newTotal = currSSTotal;
 	}
-	displayStr = `(${totalChange > 0 ? "+" : ""}${intToString(totalChange, 1)})`;
+	displayStr = `(${totalChange > 0 ? "+" : "-"}${intToString(Math.abs(totalChange), 1)})`;
 	document.querySelector(`#statTotal${suffix}`).innerHTML = intToString(newTotal, 1);
 	document.querySelector(`#statTotal${suffix}Inc`).innerHTML = displayStr;
 }
