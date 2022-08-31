@@ -32,10 +32,24 @@ function addUIElements() {
 	statList.forEach((stat) => ["Talent", "ss"].forEach((suffix) => {
 		let statEl =  document.querySelector(`#stat${stat}${suffix}`)
 		statEl.insertAdjacentHTML("afterend", `<div class="medium" id="stat${stat}${suffix}Inc"></div>`);
-		// Observer for the given stat
-		let observer = new MutationObserver(function() {updateIncreases(stat,suffix)});
-		observer.observe(statEl, {attributes: true, childList: true, characterData: true});
+		// Observer for the given stat (Depreceated)
+		// let observer = new MutationObserver(function() {updateIncreases(stat,suffix)});
+		// observer.observe(statEl, {attributes: true, childList: true, characterData: true});
 	}))
+	// Setup Proxiy on the stat updating function to also update the stat tracker
+	view.updateStat = new Proxy(view.updateStat, {
+		apply(target, thisArg, argumentsList) {
+		    updateIncreases(argumentsList[0], "Talent")
+		    return target(...argumentsList)
+		}
+	});
+	// Setup Proxy on the soulstone updating function to also update the stat tracker
+    	view.updateSoulstones = new Proxy(view.updateSoulstones, {
+            	apply(target, thisArg, argumentsList) {
+            	    statList.forEach((stat) => updateIncreases(stat,"ss"))
+            	    return target(...argumentsList)
+            	}
+        });
 
 	createTotalStat();
 
