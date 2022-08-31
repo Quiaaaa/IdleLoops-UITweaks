@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.6.4
+// @version      0.6.5
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -91,7 +91,7 @@ function addUIElements() {
 		let goalInput = document.createElement("input");
 		goalInput.className = "goal";
 		goalInput.value = `${getSkillLevelFromExp(skills[skill].exp)+1}`;
-		goalInput.style = "width: 1.5rem; top: -0.5px; margin-left: 10px; text-align: center; margin-bottom: 1px; border-width: 0.5px;" // what even is this nightmare?
+		goalInput.style = "width: 2rem; top: -0.5px; text-align: center; margin-right: .5rem; margin-bottom: 1px; border-width: 0.5px;" // what even is this nightmare?
 		goalInput.addEventListener('input', function() { updateSkillRepeats(skill) })
 		goalContainer.appendChild(goalInput);
 		
@@ -106,7 +106,7 @@ function addUIElements() {
 		// Call update once to create the text
 		updateSkillRepeats(skill);
 	});
-
+	
 	//Create reset button
 	let btn = document.createElement("button");
 	btn.id = "trackingReset";
@@ -140,6 +140,13 @@ function addUIElements() {
 	}
 	.button, .loadoutbutton {
 		margin-top:3px;
+	}
+	/* realign combat stats (poorly) */
+	#skillTCombatContainer > div:nth-child(2) {
+		margin-right: 6.5rem;
+	}
+	#skillSCombatContainer > div:nth-child(2) {
+		margin-right: 6.5rem;
 	}
 	`;
 	document.head.appendChild(style);
