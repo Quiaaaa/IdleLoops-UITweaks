@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.7
+// @version      0.7.1
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -589,14 +589,14 @@ window.repeatLoop = (count) => {
 	pauseGame();
 }
 
-function updateRepeats() {
+function updateLoopRepeats() {
 	repeats.completed++;
 	if (repeats.completed == repeats.desired) {
 		document.querySelector("#pauseBeforeRestartInput").checked = true;
 		setOption("pauseBeforeRestart", true);
 		console.debug(`Finished ${repeats.completed} loops`)
 	}
-	else {
+	else if (repeats.completed < repeats.desired){
 		console.log(`${repeats.completed}/${repeats.desired} loops run`);
 	}
 }
@@ -604,7 +604,7 @@ function updateRepeats() {
 loopEnd = new Proxy(loopEnd, {
 	//
 	apply(target, thisArg, argumentsList) {
-		updateRepeats();
+		updateLoopRepeats();
 		return target(...argumentsList);
 	}
 });
