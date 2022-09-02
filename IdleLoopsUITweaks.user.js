@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.6.6
+// @version      0.7
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -576,6 +576,38 @@ function updateAll() {
 	updateTarget();
 }
 
+
+//Repeat current loop X times, console function
+var repeats = {desired: 0, completed: 0}
+
+window.repeatLoop = (count) => {
+	repeats.desired = count;
+	repeats.completed = 0;
+	console.log(`Running ${count} loops`);
+	document.querySelector("#pauseBeforeRestartInput").checked = false;
+	setOption("pauseBeforeRestart", false);
+	pauseGame();
+}
+
+function updateRepeats() {
+	repeats.completed++;
+	if (repeats.completed == repeats.desired) {
+		document.querySelector("#pauseBeforeRestartInput").checked = true;
+		setOption("pauseBeforeRestart", true);
+		console.debug(`Finished ${repeats.completed} loops`)
+	}
+	else {
+		console.log(`${repeats.completed}/${repeats.desired} loops run`);
+	}
+}
+
+loopEnd = new Proxy(loopEnd, {
+	//
+	apply(target, thisArg, argumentsList) {
+		updateRepeats();
+		return target(...argumentsList);
+	}
+});
 
 
 
