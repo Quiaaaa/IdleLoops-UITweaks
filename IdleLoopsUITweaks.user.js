@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.7.1
+// @version      0.7.2
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -32,11 +32,11 @@ function addUIElements() {
 	statList.forEach((stat) => ["Talent", "ss"].forEach((suffix) => {
 		let statEl =  document.querySelector(`#stat${stat}${suffix}`)
 		statEl.insertAdjacentHTML("afterend", `<div class="medium" id="stat${stat}${suffix}Inc"></div>`);
-		// Observer for the given stat (Depreceated)
+		// Observer for the given stat (Depreciated)
 		// let observer = new MutationObserver(function() {updateIncreases(stat,suffix)});
 		// observer.observe(statEl, {attributes: true, childList: true, characterData: true});
 	}))
-	// Setup Proxiy on the stat updating function to also update the stat tracker
+	// Setup Proxy on the stat updating function to also update the stat tracker
 	view.updateStat = new Proxy(view.updateStat, {
 		apply(target, thisArg, argumentsList) {
 		    updateIncreases(argumentsList[0], "Talent")
@@ -82,13 +82,13 @@ function addUIElements() {
 	}));
 	
 	//Goal Tracking for Skills
-	document.querySelector("#skillTCombatContainer").insertAdjacentHTML("afterend", "<br><br>") // fuck this (alternative is to line up the combat stats with the other stats and I don't want to)
 	skillList.forEach((skill) => {
 		let observer = new MutationObserver(function() { updateSkillRepeats(skill) });
 		let skillEl = document.querySelector(`#skill${skill}LevelBar`); 
 		//Observer for the skill progress
 		observer.observe(skillEl, {attributes: true, childList: true, characterData: true});
 		
+		//remake the whole skills area to go `name` `currentlvl` `goal` `loopstogoal`
 		let container = document.createElement("div");
 		container.style = "float: right";
 		
@@ -104,7 +104,7 @@ function addUIElements() {
 		
 		let goalInput = document.createElement("input");
 		goalInput.className = "goal";
-		goalInput.value = `${getSkillLevelFromExp(skills[skill].exp)+1}`;
+		goalInput.value = `${getNextSkillGoal(skill)}`;
 		goalInput.style = "width: 2rem; top: -0.5px; text-align: center; margin-right: .5rem; margin-bottom: 1px; border-width: 0.5px;" // what even is this nightmare?
 		goalInput.addEventListener('input', function() { updateSkillRepeats(skill) })
 		goalContainer.appendChild(goalInput);
@@ -362,6 +362,25 @@ function calcJungleMulti(segment, progress) {
 	return multi;
 }
 
+function getNextSkillGoal(skill) {
+	let skillBreakpoints = {
+		Spatiomancy: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500], 
+		Mercantilism: [5, 11, 16, 22, 28, 35, 42, 49, 57, 65, 73, 82, 92, 102, 112, 123, 134, 146, 158, 171, 184, 198, 213, 228, 244, 261, 278, 296, 314, 334, 354, 375, 396, 418, 442, 466, 490], 
+		Divine: [3, 5, 8, 11, 13, 16, 19, 22, 25, 28, 32, 35, 38, 42, 45, 49, 53, 57, 61, 65, 69, 73, 78, 82, 87, 92, 97, 102, 107, 112, 117, 123, 128, 134, 140, 146, 152, 158, 164, 171, 178, 184, 191, 198, 206, 213, 221, 228, 236, 244, 252, 261, 269, 278, 287, 296, 305, 314, 324, 334, 344, 354, 364, 375, 385, 396, 407, 418, 430, 442, 454, 466, 478, 490, 503, 516, 529, 543, 556, 570, 584, 599, 613, 628, 643, 659, 674, 690, 706, 722, 739, 756, 773, 790, 808, 826, 844, 863, 881, 900, 920, 939, 959, 980, 1000], 
+		Thievery: [5, 9, 13, 18, 23, 28, 34, 39, 45, 52, 58, 65, 72, 79, 87, 95, 103, 112, 121, 130, 140, 150, 160, 171, 182, 194, 206, 218, 231], 
+	}
+	let newGoal = getSkillLevel(skill) + 1;
+	if (skill in skillBreakpoints) {
+		for (n of skillBreakpoints[skill]) {
+			if (n > getSkillLevel(skill)) {
+				newGoal = n;
+				break;
+			}
+		}
+	}
+	return newGoal;
+}
+
 function updateSkillRepeats(skill) {
 	// Use the predictor output to calculate loops required to reach the goal
 	let skillElement = document.querySelector(`#skillReqActions${skill}`);
@@ -369,8 +388,8 @@ function updateSkillRepeats(skill) {
 	
 	//auto adjust goals upward if we're not editing it
 	if (goal <= getSkillLevel(skill) && document.activeElement != skillElement.querySelector(".goal")) {
-		skillElement.querySelector(".goal").value = goal + 1;
-		goal += 1;
+		goal = getNextSkillGoal(skill);
+		skillElement.querySelector(".goal").value = goal;
 	}
 	
 	let expToGoal = (getExpOfSkillLevel(goal) - skills[skill].exp);
@@ -404,7 +423,6 @@ function getActionByVarName(varName) {
 
 function calcEff() {
     // Calculate the efficiency of the last active action
-
     let lastAction = findAction();
     if (lastAction >= 0) {
         let actionString = Koviko.totalDisplay.innerHTML;
@@ -553,7 +571,6 @@ function createHaggleMax(){
 	}
 }
 
-
 function betterCapTraining() {
 	// Only increase training actions that were at the previous cap (assumed from highest training action in the loop)
 	let actionsCopy = structuredClone(actions.next);
@@ -570,12 +587,10 @@ function betterCapTraining() {
 	view.updateNextActions();
 }
 
-
 function updateAll() {
 	skillList.forEach((skill) => updateSkillRepeats(skill));
 	updateTarget();
 }
-
 
 //Repeat current loop X times, console function
 var repeats = {desired: 0, completed: 0}
