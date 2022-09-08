@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         IdleLoops UI Tweaks
 // @namespace    https://github.com/Quiaaaa/
-// @version      0.7.2
+// @version      0.7.3
 // @description  Add some QoL UI elements for observing progress, and planning
 // @downloadURL  https://raw.githubusercontent.com/Quiaaaa/IdleLoops-UITweaks/main/IdleLoopsUITweaks.user.js
 // @author       Trimpscord
@@ -59,8 +59,8 @@ function addUIElements() {
 		nameElem.innerText = shortNames[nameElem.innerText];
 		
 		statElem.children[0].style = 'width: 10%; font-weight: bold; margin-left: 18px; margin-top: 5px' // Name
-		statElem.children[1].style = 'width: 30%; color: #737373; '; // SS
-		statElem.children[2].style = 'width: 30%;' // Talent
+		statElem.children[1].style = 'width: 31%; color: #737373; '; // SS
+		statElem.children[2].style = 'width: 31%;' // Talent
 		statElem.children[3].style = 'width: 12%; font-weight: bold'; // Level
 	}); 
 
