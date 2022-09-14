@@ -335,14 +335,6 @@ function updateRepeats(town, action) {
 					progressMod = 0.01 // lazily putting these here and not in the constant speed mods because they're all identical
 					break;
 			}
-			
-			/* 
-			TODO
-			Unimplemented actions
-			
-			ExplorersGuild // Random exploration?  Might not need to handle it at all.
-			if (getExploreSkill() == 0) towns[this.townNum].finishProgress("SurveyZ"+this.townNum, 100);
-			*/
 		}
 		
 		let actionElement = document.querySelector(`#reqActions${action}`);
@@ -371,10 +363,12 @@ function calcJungleMulti(segment, progress) {
 function getNextSkillGoal(skill) {
 	let skillBreakpoints = {
 		Spatiomancy: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500], 
-		Mercantilism: [5, 11, 16, 22, 28, 35, 42, 49, 57, 65, 73, 82, 92, 102, 112, 123, 134, 146, 158, 171, 184, 198, 213, 228, 244, 261, 278, 296, 314, 334, 354, 375, 396, 418, 442, 466, 490], 
+		Mercantilism: [5, 11, 16, 22, 28, 35, 42, 49, 57, 65, 73, 82, 92, 102, 112, 123, 134, 146, 158, 171, 184, 198, 213, 228, 244, 261, 278, 296, 314, 334, 354, 375, 396, 418, 442, 466, 490, 516, 543, 570, 599, 628, 659, 690, 722, 756, 790, 826, 863, 900, 939, 980, 1021, 1064, 1107, 1152, 1199, 1247, 1296, 1346, 1398, 1451, 1506, 1562, 1620, 1679, 1739, 1802, 1866, 1931, 1998, 2067, 2138, 2210, 2284, 2360, 2438, 2517, 2599, 2682, 2768, 2855, 2944, 3036, 3129, 3225, 3322, 3422, 3524, 3628, 3735, 3844, 3955, 4068, 4184, 4302, 4423, 4546, 4672, 4800, 4931], 
 		Divine: [3, 5, 8, 11, 13, 16, 19, 22, 25, 28, 32, 35, 38, 42, 45, 49, 53, 57, 61, 65, 69, 73, 78, 82, 87, 92, 97, 102, 107, 112, 117, 123, 128, 134, 140, 146, 152, 158, 164, 171, 178, 184, 191, 198, 206, 213, 221, 228, 236, 244, 252, 261, 269, 278, 287, 296, 305, 314, 324, 334, 344, 354, 364, 375, 385, 396, 407, 418, 430, 442, 454, 466, 478, 490, 503, 516, 529, 543, 556, 570, 584, 599, 613, 628, 643, 659, 674, 690, 706, 722, 739, 756, 773, 790, 808, 826, 844, 863, 881, 900, 920, 939, 959, 980, 1000], 
 		Thievery: [5, 9, 13, 18, 23, 28, 34, 39, 45, 52, 58, 65, 72, 79, 87, 95, 103, 112, 121, 130, 140, 150, 160, 171, 182, 194, 206, 218, 231], 
 	}
+	// TODO use a formula instead of these awful lookup tables
+	// Merc Math.ceil(60*(((Math.floor(50*(1+level/60)**.25)+1)/50)**4-1))
 	let newGoal = getSkillLevel(skill) + 1;
 	if (skill in skillBreakpoints) {
 		for (n of skillBreakpoints[skill]) {
@@ -631,6 +625,30 @@ loopEnd = new Proxy(loopEnd, {
 });
 
 
+// Shol's Mana to cap SS chance
+// TODO add to UI somewhere
+window.manaToCap = () => {
+    let manaCapsFirst = [0,0,0];
+    let manaCapsFull = [1,1,1];
+    for (let dungeon = 0; dungeon < dungeons.length; dungeon++){
+        for (let floor = 0; floor < dungeons[dungeon].length; floor++){
+            manaCapsFirst[dungeon] = Math.max(manaCapsFirst[dungeon],dungeons[dungeon][floor].ssChance);
+            manaCapsFull[dungeon] = Math.min(manaCapsFull[dungeon],dungeons[dungeon][floor].ssChance);
+        }
+    }
+
+    for (let i = 0; i < 3; i++){
+        manaCapsFirst[i] = (1 - manaCapsFirst[i]) * 1e7;
+        manaCapsFull[i] = (1 - manaCapsFull[i]) * 1e7;
+    }
+
+    return {
+        First: manaCapsFirst,
+        Full: manaCapsFull
+    }
+}
+
+
 
 var statsAtStart;
 var startSSTotal;
@@ -641,12 +659,14 @@ var currTalentTotal;
 var currTalentList = {Dexterity: 0, Strength: 0, Constitution: 0, Speed: 0, Perception: 0, Charisma: 0, Intelligence: 0, Luck: 0, Soul: 0};
 
 setTimeout(() => {
+	// TODO this should all wait on the predictor finishing a prediction, rather than a 5 second timeout
     // Growth Tracking and Remaining Actions
     startTracking();
     addUIElements();
     fitTooltipSetup();
 	
 	// wrapper for predictor to update things on change
+	// TODO need a different entry point, for when the predictor actually finishes a prediction, so that skills don't flicker in and out
 	Koviko.originalUpdate = Koviko.update;
 	Koviko.update = function() {
 		Koviko.originalUpdate(...arguments);
@@ -659,6 +679,7 @@ setTimeout(() => {
     document.querySelector('#actionList').children[1].style += 'left:34px';
     let observer = new MutationObserver(calcEff);
     observer.observe(Koviko.totalDisplay.parentNode.childNodes[5], {attributes: true, childList: true, characterData: true});
+	// TODO this button gets doubled with the new predictor code, no idea how to fix
     let observer2 = new MutationObserver(createHaggleMax);
     observer2.observe(Koviko.totalDisplay.parentNode.childNodes[5], {attributes: true, childList: true, characterData: true});
     calcEff();
