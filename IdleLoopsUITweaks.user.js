@@ -562,11 +562,13 @@ function createHaggleMax(){
 	for (let i = 0; i < actions.next.length; i++) {
 		const action = actions.next[i];
 		if (action.name === "Haggle") {
+		    if (document.getElementById(`capButton${i}`) === null) {
 			let haggleCap = document.createElement("i");
 			haggleCap.id = `capButton${i}`;
 			haggleCap.classList.add("actionIcon","far","fa-circle");
 			haggleCap.onclick = function() { haggleMax(i) };
 			document.querySelector(`#nextActionContainer${i}`).children[1].insertAdjacentElement("afterbegin",haggleCap);
+		    }
 		}
 	}
 }
